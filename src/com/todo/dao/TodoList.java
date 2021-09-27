@@ -37,7 +37,7 @@ public class TodoList {
 
 	public void listAll() {
 		System.out.println("\n"
-				+ "inside list_All method\n");
+				+ "[전체 항목 확인]\n");
 		for (TodoItem myitem : list) {
 			System.out.println(myitem.getTitle() + myitem.getDesc());
 		}
@@ -61,4 +61,5 @@ public class TodoList {
 		}
 		return false;
 	}
+
 }

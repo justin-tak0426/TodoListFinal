@@ -15,10 +15,13 @@ public class TodoMain {
 		boolean isList = false;
 		boolean quit = false;
 		do {
-			Menu.displaymenu();
 			isList = false;
-			String choice = sc.next();
+			String choice = Menu.prompt();
 			switch (choice) {
+			
+			case "help":
+				Menu.displaymenu();
+				break;
 
 			case "add":
 				TodoUtil.createItem(l);
@@ -55,9 +58,13 @@ public class TodoMain {
 			case "exit":
 				quit = true;
 				break;
+				
+			case "find":
+				TodoUtil.find(l, sc.next());
+				break;
 
 			default:
-				System.out.println("please enter one of the above mentioned command");
+				System.out.println("존재하지 않는 명령어가 입력되었습니다. 다시 입력해주세요!");
 				break;
 			}
 			
