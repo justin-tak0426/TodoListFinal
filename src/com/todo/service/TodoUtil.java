@@ -13,7 +13,7 @@ import com.todo.dao.TodoList;
 
 public class TodoUtil {
 	
-	public static void createItem(TodoList list) {
+	public static void createItem(TodoList l) {
 		
 		String category, title, desc, due_date;
 		Scanner sc = new Scanner(System.in);
@@ -23,8 +23,12 @@ public class TodoUtil {
 		
 		System.out.print("제목 >> ");
 		title = sc.next();
-		if (list.isDuplicate(title)) {
-			System.out.printf("제목이 중복됩니다!");
+	/*	if (list.isDuplicate(title)) {
+			System.out.println("제목이 중복됩니다!\n");
+			return;
+		} */
+		if(l.isDuplicate(title)) {
+			System.out.println("제목이 중복됩니다!");
 			return;
 		}
 		System.out.print("카테고리 >> ");
@@ -38,9 +42,10 @@ public class TodoUtil {
 		System.out.print("마감일자 >> ");
 		due_date = sc.nextLine().trim();
 		
-		TodoItem t = new TodoItem(category, title, desc, due_date);
-		list.addItem(t);
-		System.out.println("항목이 추가되었습니다.");
+		TodoItem t = new TodoItem(title, desc, category, due_date);
+		if(l.addItem(t)>0) {
+			System.out.println("추가되었습니다.");
+		}
 	}
 
 	public static void deleteItem(TodoList l) {
@@ -56,19 +61,17 @@ public class TodoUtil {
 			return;
 		}
 		
-		if (num <= l.getList().size()) {
-			l.deleteItem(l.getList().get(num-1));
-			System.out.println(num + "번 항목이 삭제되었습니다.\n");
+		if(l.deleteItem(num)>0) {
+			System.out.println("삭제되었습니다.");
 		}
 		else {
-			System.out.println("입력된 번호가 잘못되었습니다.\n");
-			
+			System.out.println("삭제되지 않았습니다.");
 		}
 	}
 
 
 	public static void updateItem(TodoList l) {
-		
+		String new_title, new_desc, new_category, new_due_date;
 		Scanner sc = new Scanner(System.in);
 		
 		System.out.print("\n"
@@ -82,44 +85,36 @@ public class TodoUtil {
 		}
 
 		System.out.println("새로운 제목을 입력하세요 >> ");
-		String new_title = sc.next().trim();
-		if (l.isDuplicate(new_title)) {
-			System.out.println("항목의 제목이 중복됩니다.");
-			return;
-		}
+		new_title = sc.next().trim();
 		
 		System.out.print("새로운 카테고리를 입력하세요 >> ");
-		String new_category = sc.next().trim();
-		
+		new_category = sc.next().trim();
 		sc.nextLine();
 		
 		System.out.print("새로운 항목의 내용을 입력하세요 >> ");
-		String new_description = sc.nextLine();
+		new_desc = sc.nextLine();
 		
 		System.out.print("새로운 마감일자를 입력하세요 >> ");
-		String new_due_date = sc.nextLine();
+		new_due_date = sc.nextLine().trim();
 		
-		l.deleteItem(l.getList().get(num-1));
 		
-		TodoItem t = new TodoItem(new_category, new_title, new_description, new_due_date);
-		l.addItem(t);
-		System.out.println("항목이 수정되었습니다!");
+	//	l.deleteItem(l.getList().get(num-1));
+		
+		TodoItem t = new TodoItem(new_title, new_desc, new_category, new_due_date);
+		t.setId(num);
+		if(l.updateItem(t) > 0) {
+			System.out.println("항목이 수정되었습니다!");
+		}
+		
 			
 		
 
 	}
 
 	public static void listAll(TodoList l) {
-		int count = 0;
+		System.out.printf("[전체 목록, 총 %d개]\n", l.getCount());
 		for(TodoItem item : l.getList()) {
-			count ++;
-		}
-		System.out.println("총 "+count+"개의 항목이 있습니다.\n");
-		
-		int n = 0;
-		for (TodoItem item : l.getList()) {
-			System.out.println( (n+1) + ". [" + item.getCategory() + "] " + item.getTitle() + " - " + item.getDesc() + " - " + item.getDue_date() + " - " + item.getCurrent_date());
-			n++;
+			System.out.println(item.toString());
 		}
 	}
 	
@@ -164,7 +159,44 @@ public class TodoUtil {
 		}
 	}
 	
-	public static void find(TodoList l, String keyword) {
+	public static void findList(TodoList l, String keyword) {
+		int count = 0;
+		for(TodoItem item : l.getList(keyword)) {
+			System.out.println(item.toString());
+			count ++;
+		}
+		System.out.printf("총 %d개의 항목을 찾았습니다.\n", count);
+	}
+	
+	public static void listCateAll(TodoList l) {
+		int count = 0;
+		for(String item : l.getCategories()) {
+			System.out.print(item + " ");
+			count ++;
+			
+		}
+		System.out.printf("\n총 %d개의 카테고리가 등록되어 있습니다.\n", count);
+	}
+	
+	public static void findCateList(TodoList l, String cate) {
+		int count=0;
+		for(TodoItem item : l.getListCategory(cate)) {
+			System.out.println(item.toString());
+			count ++;
+		}
+		System.out.printf("\n총 %d개의 항목을 찾았습니다.\n",count);
+	}
+	
+	public static void listAll(TodoList l, String orderby, int ordering) {
+		System.out.printf("[전체 목록, 총 %d개]\n", l.getCount());
+		for(TodoItem item : l.getOrderedList(orderby, ordering)) {
+			System.out.println(item.toString());
+		}
+	}
+	
+	
+	
+/*	public static void find(TodoList l, String keyword) {
 		int num = 0;
 		int index = 0;
 		System.out.print("찾으시려는 키워드를 입력하세요 >> ");
@@ -178,5 +210,6 @@ public class TodoUtil {
 		
 		System.out.println("총 " + num + "개의 항목을 찾았습니다.");
 	}
+*/
 	
 }
