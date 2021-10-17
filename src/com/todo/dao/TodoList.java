@@ -22,8 +22,8 @@ public class TodoList {
 	}
 
 	public int addItem(TodoItem t) {
-		String sql = "insert into list (title, memo, category, current_date, due_date)"
-				+ "values (?,?,?,?,?);";
+		String sql = "insert into list (title, memo, category, current_date, due_date, due_time, is_repeat, is_completed)"
+				+ "values (?,?,?,?,?,?,?,?);";
 		PreparedStatement pstmt;
 		int count = 0;
 		try {
@@ -33,7 +33,13 @@ public class TodoList {
 			pstmt.setString(3, t.getCategory());
 			pstmt.setString(4, t.getCurrent_date());
 			pstmt.setString(5, t.getDue_date());
+			pstmt.setString(6, t.getDue_time());
+			pstmt.setInt(7, t.getIs_repeat());
+			pstmt.setInt(8, t.getComplete());
+			
+			count = pstmt.executeUpdate();
 			pstmt.close();
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -56,7 +62,7 @@ public class TodoList {
 	}
 
 	public int updateItem(TodoItem t) {
-		String sql = "update list set title=?, memo=?, category=?, current_date=?, due_date=?"
+		String sql = "update list set title=?, memo=?, category=?, current_date=?, due_date=?, due_time=?, is_repeat=?"
 				+ " where id = ?;";
 		PreparedStatement pstmt;
 		int count = 0;
@@ -68,7 +74,9 @@ public class TodoList {
 			pstmt.setString(3, t.getCategory());
 			pstmt.setString(4, t.getCurrent_date());
 			pstmt.setString(5, t.getDue_date());
-			pstmt.setInt(6,  t.getId());
+			pstmt.setString(6, t.getDue_time());
+			pstmt.setInt(7, t.getIs_repeat());
+			pstmt.setInt(8,  t.getId());
 			count = pstmt.executeUpdate();
 			pstmt.close();
 
@@ -77,13 +85,13 @@ public class TodoList {
 		}
 		return count;
 	}
-
-	public ArrayList<TodoItem> getList() {
+	
+	public ArrayList<TodoItem> getList(){
 		ArrayList<TodoItem> list = new ArrayList<TodoItem>();
 		Statement stmt;
 		try {
 			stmt = conn.createStatement();
-			String sql = "SELECT * FROM list";
+			String sql = "SELECT * FROM list;";
 			ResultSet rs = stmt.executeQuery(sql);
 			while(rs.next()) {
 				int id = rs.getInt("id");
@@ -91,34 +99,87 @@ public class TodoList {
 				String title = rs.getString("title");
 				String description = rs.getString("memo");
 				String due_date = rs.getString("due_date");
+				String due_time = rs.getString("due_time");
 				String current_date = rs.getString("current_date");
-				TodoItem t = new TodoItem(title, description, category, due_date);
+				int is_repeat = rs.getInt("is_repeat");
+				int is_completed = rs.getInt("is_completed");
+				TodoItem t = new TodoItem(title, description, category, due_date, due_time, is_repeat, is_completed);
 				t.setId(id);
 				t.setCurrent_date(current_date);
 				list.add(t);
 			}
 			stmt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+
+	public ArrayList<TodoItem> getList(String keyword) {
+		ArrayList<TodoItem> list = new ArrayList<TodoItem>();
+		PreparedStatement pstmt;
+		keyword = "%"+keyword+"%";
+		try {
+			String sql = "SELECT * FROM list WHERE title like ? or memo like ?;";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, keyword);
+			pstmt.setString(2,  keyword);
+			ResultSet rs = pstmt.executeQuery();
+			while(rs.next()) {
+				int id = rs.getInt("id");
+				String category = rs.getString("category");
+				String title = rs.getString("title");
+				String description = rs.getString("memo");
+				String due_date = rs.getString("due_date");
+				String due_time = rs.getString("due_time");
+				String current_date = rs.getString("current_date");
+				int is_repeat = rs.getInt("is_repeat");
+				int is_completed = rs.getInt("is_completed");
+				TodoItem t = new TodoItem(title, description, category, due_date, due_time, is_repeat, is_completed);
+				t.setId(id);
+				t.setCurrent_date(current_date);
+				list.add(t);
+			}
+			pstmt.close();
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}
 		return list;
 	}
 	
-	public ArrayList<TodoItem> getList(String keyword){
+	public ArrayList<TodoItem> getList(int num){
 		ArrayList<TodoItem> list = new ArrayList<TodoItem>();
 		PreparedStatement pstmt;
-		keyword = "%"+keyword+"%";
+		
 		try {
-			String sql = "SELECT * FROM list WHERE title like ? or memo like ?";
+			String sql = "SELECT * FROM list WHERE is_completed like ?;";
 			pstmt = conn.prepareStatement(sql);
-			pstmt.setString(1, keyword);
-			pstmt.setString(2, keyword);
+			pstmt.setInt(1, num);
 			ResultSet rs = pstmt.executeQuery();
-		} catch (SQLException e) {
+			while(rs.next()) {
+				int id = rs.getInt("id");
+				String category = rs.getString("category");
+				String title = rs.getString("title");
+				String description = rs.getString("memo");
+				String due_date = rs.getString("due_date");
+				String due_time = rs.getString("due_time");
+				String current_date = rs.getString("current_date");
+				int is_repeat = rs.getInt("is_repeat");
+				int is_completed = rs.getInt("is_completed");
+				TodoItem t = new TodoItem(title, description, category, due_date, due_time, is_repeat, is_completed);
+				t.setId(id);
+				t.setCurrent_date(current_date);
+				list.add(t);
+			}
+			pstmt.close();
+		} catch(SQLException e) {
 			e.printStackTrace();
 		}
+		
 		return list;
 	}
+	
+
 	
 	public ArrayList<String> getCategories(){
 		ArrayList<String> list = new ArrayList<String>();
@@ -146,7 +207,7 @@ public class TodoList {
 		ArrayList<TodoItem> list = new ArrayList<TodoItem>();
 		PreparedStatement pstmt;
 		try {
-			String sql = "SELECT * FROM list WHERE category = ?";
+			String sql = "SELECT * FROM list WHERE category = ?;";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1,  keyword);
 			ResultSet rs = pstmt.executeQuery();
@@ -157,8 +218,11 @@ public class TodoList {
 				String title = rs.getString("title");
 				String description = rs.getString("memo");
 				String due_date = rs.getString("due_date");
+				String due_time = rs.getString("due_time");
 				String current_date = rs.getString("current_date");
-				TodoItem t = new TodoItem(title, description, category, due_date);
+				int is_repeat = rs.getInt("is_repeat");
+				int is_completed = rs.getInt("is_completed");
+				TodoItem t = new TodoItem(title, description, category, due_date, due_time, is_repeat, is_completed);
 				t.setId(id);
 				t.setCurrent_date(current_date);
 				list.add(t);
@@ -192,13 +256,6 @@ public class TodoList {
 
 	}
 
-	public void listAll() {
-		System.out.println("\n"
-				+ "[전체 항목 확인]\n");
-		for (TodoItem myitem : list) {
-			System.out.println(myitem.getTitle() + myitem.getDesc());
-		}
-	}
 	
 	public void reverseList() {
 		Collections.reverse(list);
@@ -219,6 +276,7 @@ public class TodoList {
 		return false;
 	}
 	
+	/*
 	public void importData(String filename) {
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(filename));
@@ -250,6 +308,7 @@ public class TodoList {
 			e.printStackTrace();
 		}
 	}
+	*/
 	
 	public ArrayList<TodoItem> getOrderedList(String orderby, int ordering){
 		ArrayList<TodoItem> list = new ArrayList<TodoItem>();	
@@ -268,8 +327,79 @@ public class TodoList {
 				String title = rs.getString("title");
 				String description = rs.getString("memo");
 				String due_date = rs.getString("due_date");
+				String due_time = rs.getString("due_time");
 				String current_date = rs.getString("current_date");
-				TodoItem t = new TodoItem(title, description, category, due_date);
+				int is_repeat = rs.getInt("is_repeat");
+				int is_completed = rs.getInt("is_completed");
+				TodoItem t = new TodoItem(title, description, category, due_date, due_time, is_repeat, is_completed);
+				t.setId(id);
+				t.setCurrent_date(current_date);
+				list.add(t);
+			}
+			
+			stmt.close();
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return list;
+	
+	}
+	
+	public TodoItem getItem(int index) {
+		return list.get(index);
+	}
+	
+	
+	public void completeItem(int index) {
+		String sql = "update list set is_completed=?"
+				+ " where id = ?;";
+		PreparedStatement pstmt;
+		int count=0;
+		
+		try {
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, 1);
+			pstmt.setInt(2, index);
+			count = pstmt.executeUpdate();
+			pstmt.close();
+
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+		
+		if(count>0) {
+			System.out.println("수정 완료되었습니다.");
+		}
+		else {
+			System.out.println("수정에 실패하였습니다.");
+		}
+		
+		
+	}
+	
+	public ArrayList<TodoItem> getRepeatList(String orderby, int ordering){
+		ArrayList<TodoItem> list = new ArrayList<TodoItem>();	
+		Statement stmt;
+		try {
+			stmt = conn.createStatement();
+			String sql = "SELECT * FROM list WHERE is_repeat=1 ORDER BY " + orderby;
+			if(ordering == 0) {
+				sql += " desc";
+			}
+			ResultSet rs = stmt.executeQuery(sql);
+			
+			while(rs.next()) {
+				int id = rs.getInt("id");
+				String category = rs.getString("category");
+				String title = rs.getString("title");
+				String description = rs.getString("memo");
+				String due_date = rs.getString("due_date");
+				String due_time = rs.getString("due_time");
+				String current_date = rs.getString("current_date");
+				int is_repeat = rs.getInt("is_repeat");
+				int is_completed = rs.getInt("is_completed");
+				TodoItem t = new TodoItem(title, description, category, due_date, due_time, is_repeat, is_completed);
 				t.setId(id);
 				t.setCurrent_date(current_date);
 				list.add(t);
@@ -284,6 +414,5 @@ public class TodoList {
 	
 	}
 
-	
 
 }
