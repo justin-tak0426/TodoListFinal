@@ -91,6 +91,7 @@ public class TodoMain {
 			case "del_complete":
 				System.out.println("완료된 항목을 모두 삭제합니다.");
 				TodoUtil.deleteAllComplete(l, 1);
+				break;
 				
 			//새로운 기능
 			//1. 완료된 리스트와 완료되지 않은 리스트를 한번에 정렬해 보여줌
