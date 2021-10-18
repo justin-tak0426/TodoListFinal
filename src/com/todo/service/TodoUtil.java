@@ -108,7 +108,7 @@ public class TodoUtil {
 		System.out.print("새로운 마감시간을 입력하세요 >> ");
 		new_due_time = sc.nextLine().trim();
 		
-		System.out.println("반복일정 유무를 입력하세요(반복일정일시 1, 아닐시 0 입력) >>");
+		System.out.print("반복일정 유무를 입력하세요(반복일정일시 1, 아닐시 0 입력) >> ");
 		new_is_repeat = sc.nextInt();
 		
 		int new_is_completed = 0;

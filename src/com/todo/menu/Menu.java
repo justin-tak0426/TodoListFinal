@@ -23,7 +23,7 @@ public class Menu {
         System.out.println("(13) ls_comp: 완료항목을 출력");
         System.out.println("(14) del_complete: 완료된 항목을 모두 삭제");
         System.out.println("(15) ls_complete: 완료된 항목과 완료되지 않은 항목을 구분하여 출력");
-        System.out.println("(16) add_repeat: 주기적인 항목을 정렬해서 출력");
+        System.out.println("(16) ls_repeat: 주기적인 항목을 정렬해서 출력");
         
         System.out.println("(0) exit :프로그램 종료");
             

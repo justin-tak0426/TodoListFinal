@@ -80,6 +80,7 @@ public class TodoMain {
 			case "comp":
 				int index = sc.nextInt();
 				TodoUtil.completeItem(l, index);
+				break;
 			
 			case "ls_comp":
 				System.out.println("완료된 항목을 출력합니다.");
@@ -100,10 +101,10 @@ public class TodoMain {
 				
 				
 			//2. 주기적인 항목을 정렬해서 보여주기.
-			case "add_repeat":
+			case "ls_repeat":
 				System.out.println("주기적인 항목을 정렬해서 출력합니다.");
 				TodoUtil.listRepeat(l, 1);
-				
+				break;
 				
 				
 			case "exit":
